@@ -24,10 +24,11 @@ private:
     unordered_set<Vertex*> ccp_nodes;
 
 public:
-    // Constructor
+    // Constructor creates graph of points and hospitals
     ccpLocations(Graph* graph) : graph(graph) {}
 
-    // Add a hospital node
+    // name:addHospital
+    //description: creates hospital nodes when called
     void addHospital(const string& hospitalLabel) {
         Vertex* hospital = graph->GetVertex(hospitalLabel);
         if (hospital) {
@@ -35,7 +36,8 @@ public:
         }
     }
 
-    // Add an ccp location node
+    // name:addCCPLocations
+    //description: creates ccp nodes when called
     void addCCPLocation(const string& ccpLabel) {
         Vertex* ccp = graph->GetVertex(ccpLabel);
         if (ccp) {
@@ -43,8 +45,10 @@ public:
         }
     }
 
-    // Find the shortest path to the nearest hospital
-    vector<string> getShortestPathToNearestHospital(const string& ccpLabel) {
+    // name:shortestPathToHospital
+    // description:Finds the shortest path to the nearest hospital from ccp
+    //using dijkstra algorithm from the file
+    vector<string> shortestPathToHospital(const string& ccpLabel) {
         Vertex* ccp = graph->GetVertex(ccpLabel);
         if (!ccp) {
             return {"ccp location not found"};
@@ -58,7 +62,7 @@ public:
         double shortest_distance = numeric_limits<double>::max();
         vector<Vertex*> best_path;
 
-        // Iterate over all hospital nodes to find the nearest one
+        // Iterates over all hospital nodes to find the closest to the ccp
         for (Vertex* hospital : hospital_nodes) {
             auto [path, distance] = dijkstra.findDijkstra(graph, emergency, hospital);
             if (!path.empty() && distance < shortest_distance) {
@@ -71,7 +75,7 @@ public:
             return {"No hospital reachable"};
         }
 
-        // Convert the best path from Vertex* to strings (labels)
+        // converts path to (label)
         vector<string> result;
         for (Vertex* vertex : best_path) {
             result.push_back(vertex->getLabel());
