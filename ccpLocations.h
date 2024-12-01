@@ -25,7 +25,7 @@ class ccpLocations {
     
     public:
         // Constructor creates graph of points and hospitals
-        ccpLocations(Graph* graph) 
+        ccpLocations (Graph* graph)
         {
             this->graph = graph;
         }
@@ -34,7 +34,7 @@ class ccpLocations {
         //description: creates hospital nodes when called
         void addHospital(const string& hospitalLabel) 
         {
-            Vertex* hospital = graph->GetVertex(hospitalLabel);
+            Vertex* hospital = graph->getVertex(hospitalLabel);
             if (hospital) 
             {
                 hospital_nodes.insert(hospital);
@@ -45,7 +45,7 @@ class ccpLocations {
         //description: creates ccp nodes when called
         void addCCPLocation(const string& ccpLabel) 
         {
-            Vertex* ccp = graph->GetVertex(ccpLabel);
+            Vertex* ccp = graph->getVertex(ccpLabel);
             if (ccp) 
             {
                 ccp_nodes.insert(ccp);
@@ -57,7 +57,7 @@ class ccpLocations {
         //using dijkstra algorithm from the file
         vector<string> shortestPathToHospital(const string& ccpLabel) 
         {
-            Vertex* ccp = graph->GetVertex(ccpLabel);
+            Vertex* ccp = graph->getVertex(ccpLabel);
             if (!ccp) 
             {
                 return {"ccp location not found"};
@@ -72,11 +72,11 @@ class ccpLocations {
             double shortest_distance = numeric_limits<double>::max();
             vector<Vertex*> best_path;
     
-            // Iterates over all hospital nodes to find the closest to the ccp
+            //iterate over all hospital nodes to find the closest to the ccp
             for (Vertex* hospital : hospital_nodes) 
             {
-                auto [path, distance] = dijkstra.findDijkstra(graph, emergency, hospital);
-                if (!path.empty() && distance < shortest_distance) 
+                auto [path, distance] = dijkstra.findDijkstra(graph, ccp, hospital);
+                if (!path.empty() && distance < shortest_distance)
                 {
                     shortest_distance = distance;
                     best_path = path;

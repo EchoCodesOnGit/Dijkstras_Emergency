@@ -112,9 +112,9 @@ class Graph {
          * @param newLabel : const string&
          * @returns Vertex*
          */
-        Vertex* addEdge(const string &newLabel) {
+        Vertex* addVertex(const string &newLabel) {
             //create new Vertex obj
-            Vertex* newVertex = new Vertex(newLabel);
+            auto* newVertex = new Vertex(newLabel);
 
             //each vertex must live as a key in both maps
             fromEdges[newVertex] = new vector<Edge*>();
@@ -196,7 +196,7 @@ class Graph {
          * @author Emily Monroe
          *
          */
-        Vertex* GetVertex(const string &vertexLabel) {
+        Vertex* getVertex(const string &vertexLabel) {
             for (auto &keyValue: fromEdges) {
                 Vertex* vertex = keyValue.first;
                 if (vertex->getLabel() == vertexLabel) {

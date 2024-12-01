@@ -15,6 +15,13 @@ private:
     unordered_map<Vertex *, bool> visited;
 
 public:
+
+    Dijkstra(){
+        dists.clear();
+        prev.clear();
+        visited.clear();
+    }
+
     //find shortest dist
     pair<vector<Vertex*>, double> findDijkstra(Graph* graph, Vertex* start, Vertex* end) {
 
@@ -33,7 +40,7 @@ public:
         priority_queue<
                 pair<Vertex*, double>,
                 vector<pair<Vertex*, double>>,
-                decltype(compare)> pq(compare);
+                decltype(compare) > pq(compare);
 
         pq.emplace(start, 0.0);
 
@@ -64,7 +71,7 @@ public:
             }
         }
 
-        // Reconstruct the path
+        // rebuild path
         vector<Vertex*> path;
         for (Vertex* at = end; at != nullptr; at = prev[at]) {
             path.insert(path.begin(), at);
