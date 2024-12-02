@@ -9,6 +9,18 @@ using namespace std;
  * 2. Hardcode all vertices and edges with their respective weights and have the frontend
  * take in user input to see which CCP they're at and then provided a list of closest
  * hospitals sorted by distance (closest to furthest)
+ *
+ * FIXME:
+ * For some reason whenever the shortest path is ran, it always returns Helen Keller Hospital
+ *      -EFFORTS TRIED:
+ *          -Swapping the newGraph->addDirectEdge with newGraph->addUndirEdge
+ *          -switching the declaration of the code blocks
+ *          -messing with the compare function in Dijkstra.h (didn't work)
+ *      -MAYBE TRY:
+ *          -debugging with the hasEdge, getEdges
+ *
+ * NOTES:
+ *          -We could probably get away with
  */
 
 int menu();
@@ -25,6 +37,53 @@ int main() {
     newGraph->addVertex("North Alabama Medical Center");
     newGraph->addVertex("Helen Keller Hospital");
 
+    //Commons to Hospitals
+    newGraph->addDirectEdge(
+            (newGraph->getVertex("Commons")),
+            (newGraph->getVertex("North Alabama Medical Center")),
+            {2.1,2.2,2.3}
+            );
+    newGraph->addDirectEdge(
+            (newGraph->getVertex("Commons")),
+            (newGraph->getVertex("Helen Keller Hospital")),
+            {5.5,5.6,6.2}
+            );
+
+    //Wesleyan to Hospitals
+    newGraph->addDirectEdge(
+            (newGraph->getVertex("Wesleyan Hall")),
+            (newGraph->getVertex("North Alabama Medical Center")),
+            {2.2,2.2,2.4}
+            );
+    newGraph->addDirectEdge(
+            (newGraph->getVertex("Wesleyan Hall")),
+            (newGraph->getVertex("Helen Keller Hospital")),
+            {5.8,6.5}
+            );
+
+    //Flowers to Hospitals
+    newGraph->addUndirEdge(
+            (newGraph->getVertex("Flowers Hall")),
+            (newGraph->getVertex("North Alabama Medical Center")),
+            {2.5,2.7}
+            );
+    newGraph->addUndirEdge(
+            (newGraph->getVertex("Flowers Hall")),
+            (newGraph->getVertex("Helen Keller Hospital")),
+            {5.7,6.4}
+            );
+
+    //Mattielou to Hospitals
+    newGraph->addUndirEdge(
+            (newGraph->getVertex("Mattielou Hall")),
+            (newGraph->getVertex("North Alabama Medical Center")),
+            {2.3,2.5,2.7}
+            );
+    newGraph->addUndirEdge(
+            (newGraph->getVertex("Mattielou Hall")),
+            (newGraph->getVertex("Helen Keller Hospital")),
+            {5.9,6.6}
+        );
     /****************************************************/
 
     //init the ccpLocs with the previously defined graph
@@ -54,7 +113,7 @@ int main() {
                     location = promptLocation();
                 }
                 givenPath = ccpLocs.shortestPathToHospital(location);
-                for (const auto &path: givenPath) {
+                for (const auto& path: givenPath) {
                     cout << path << endl;
                 }
                 break;
@@ -95,8 +154,9 @@ string promptLocation(){
     cout << "\t3. Flowers Hall\n";
     cout << "\t4. Mattielou Hall\n";
 
+    cin.ignore();
     string location;
-    cin >> location;
+    getline(cin, location);
 
     if(location != "Commons" &&
        location != "Wesleyan Hall" &&

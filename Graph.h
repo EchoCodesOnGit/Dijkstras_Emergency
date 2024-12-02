@@ -7,6 +7,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 #include <limits>
 #include <queue>
@@ -45,10 +46,10 @@ class Edge{
     private:
         Vertex* fromVert;
         Vertex* toVert;
-        double weight;
+        vector<double> weight; //so it can be given as a range dependent on different routes
 
     public:
-        Edge(Vertex* from, Vertex* to, double edgeWeight){
+        Edge(Vertex* from, Vertex* to, vector<double> edgeWeight){
             fromVert = from;
             toVert = to;
             weight = edgeWeight;
@@ -56,7 +57,8 @@ class Edge{
 
         Vertex* getToVert() { return this->toVert; }
         Vertex* getFromVert() { return this->fromVert; }
-        double getWeight() const { return this->weight; }
+        double getWeight() const { return this->weight.at(0); }
+        vector<double> getDiffWeights() const { return this->weight; }
 };
 
 class Graph {
@@ -132,7 +134,7 @@ class Graph {
          * @param fromVertex : Vertex*, toVertex : Vertex*, weight : double->1.0
          * @returns Edge*
          */
-        Edge* addDirectEdge(Vertex* fromVertex, Vertex* toVertex, double weight = 1.0){
+        Edge* addDirectEdge(Vertex* fromVertex, Vertex* toVertex, vector<double> weight = {1.0}){
             //only add unique labels
             if(hasEdge(fromVertex, toVertex)){
                 return nullptr;
@@ -156,7 +158,7 @@ class Graph {
          * @param vertA : Vertex*, vertB : Vertex*, weight : double->1.0
          * @returns pair<Edge*, Edge*>
          */
-        pair<Edge*, Edge*> addUndirEdge(Vertex* vertA, Vertex* vertB, double weight = 1.0){
+        pair<Edge*, Edge*> addUndirEdge(Vertex* vertA, Vertex* vertB, vector<double> weight = {1.0}){
             Edge* edge1 = new Edge(vertA, vertB, weight);
             Edge* edge2 = new Edge(vertB, vertA, weight);
             pair<Edge*, Edge*> edgePair(edge1, edge2);
@@ -211,7 +213,7 @@ class Graph {
          * graph in a vector form
          * @author Emily Monroe
          */
-        vector<Vertex*> getVertices() const{//TODO: figure out why this isnt allowed
+        vector<Vertex*> getVertices() const{
             vector<Vertex*> vertices;
             for (auto &keyValue: fromEdges)
             {
