@@ -3,10 +3,14 @@
  * to us during the CS355 course that was originally used for minimum spanning trees. We just
  * noticed that it was a good blueprint for the graph class that would be used for the Dijkstra's
  * algorithm project.
+ *
+ * @author Ethan Smith, Emily Monroe
+ * @version 11.23.24
  */
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 #include <limits>
 #include <queue>
@@ -45,24 +49,26 @@ class Edge{
     private:
         Vertex* fromVert;
         Vertex* toVert;
-        double weight;
+        vector<double> weightSet;
 
     public:
-        Edge(Vertex* from, Vertex* to, double edgeWeight){
+        Edge(Vertex* from, Vertex* to, vector<double> edgeWeight){
             fromVert = from;
             toVert = to;
-            weight = edgeWeight;
+            weightSet = edgeWeight;
         }
 
         Vertex* getToVert() { return this->toVert; }
         Vertex* getFromVert() { return this->fromVert; }
-        double getWeight() const { return this->weight; }
+        double getWeight() const { return this->weightSet[0]; }
+        vector<double> getWeightSet() const { return this->weightSet; }
 };
 
 class Graph {
     private:
         unordered_map<Vertex*, vector<Edge*> *> fromEdges;
         unordered_map<Vertex*, vector<Edge*> *> toEdges;
+        unordered_map<Vertex*, vector<Edge*> *> undirEdges;
 
         class ComparePairs{
             public:
@@ -132,7 +138,7 @@ class Graph {
          * @param fromVertex : Vertex*, toVertex : Vertex*, weight : double->1.0
          * @returns Edge*
          */
-        Edge* addDirectEdge(Vertex* fromVertex, Vertex* toVertex, double weight = 1.0){
+        Edge* addDirectEdge(Vertex* fromVertex, Vertex* toVertex, vector<double> weight = {1.0}){
             //only add unique labels
             if(hasEdge(fromVertex, toVertex)){
                 return nullptr;
@@ -155,13 +161,16 @@ class Graph {
          * @see Graph::addDirectedEdge
          * @param vertA : Vertex*, vertB : Vertex*, weight : double->1.0
          * @returns pair<Edge*, Edge*>
-         */
-        pair<Edge*, Edge*> addUndirEdge(Vertex* vertA, Vertex* vertB, double weight = 1.0){
-            Edge* edge1 = new Edge(vertA, vertB, weight);
-            Edge* edge2 = new Edge(vertB, vertA, weight);
-            pair<Edge*, Edge*> edgePair(edge1, edge2);
-            return edgePair;
-        }
+         * @deprecated This function was originally written in this file simply for generalization of a graph, however,
+         *             since we are dealing with just the user's perspective and onl going from a CCP to a hospital, it is not needed.
+         *
+         *  pair<Edge*, Edge*> addUndirEdge(Vertex* vertA, Vertex* vertB, double weight = 1.0){
+         *      Edge* edge1 = new Edge(vertA, vertB, weight);
+         *      Edge* edge2 = new Edge(vertB, vertA, weight);
+         *      pair<Edge*, Edge*> edgePair(edge1, edge2);
+         *      return edgePair;
+         *   }
+        */
 
         /*
          * This function returns the set of edges throughout the graph
@@ -181,11 +190,58 @@ class Graph {
             return edgeSet;
         }
 
-        const vector<Edge*>* getEdgesFrom(Vertex* fromVertex) const{
-            return fromEdges.at(fromVertex);
+        /*
+         * This function wasn't originally here and was added on the provided version date. All it does
+         * is take the two provided vertexs and returns the single weight from vertA to vertB as well as
+         * the set of alternate possible weights for the two vertices
+         *
+         * @author Ethan Smith
+         * @version 12.2.2024
+         * @returns pair<double, vector<double>>
+         * @params Vertex*, Vertex*
+         */
+        pair<double, vector<double>> getWeightPair(Vertex* vertA, Vertex* vertB){
+            vector<Edge*> edgesFromVert1 = getEdgesFrom(vertA);
+            for(Edge* edge : edgesFromVert1){
+                if(edge->getToVert() == vertB){
+                    pair<double, vector<double>> weights;
+                    weights.first = edge->getWeight();
+                    weights.second = edge->getWeightSet();
+                    return weights;
+                }
+            }
+
+            return {-1.0, {-11.0}};
         }
 
-        const vector<Edge*>* getEdgesTo(Vertex* toVertex) const{
+    /*
+     * This function had to be rewritten as a result of the implementation of the
+     * getWeightPair() function. All this function does is return the edges going out
+     * from the provided Vertex* arg.
+     *
+     * @author Ethan Smith
+     * @version 12.2.2024
+     * @return const vector<Edge*>&
+     * @param Vertex*
+     */
+    const vector<Edge*>& getEdgesFrom(Vertex* fromVertex) const {
+        auto iter = fromEdges.find(fromVertex);
+        if (iter != fromEdges.end() && iter->second != nullptr) {
+            return *(iter->second);
+        }
+        cout << "Vertex not found or no edges associated with it.";
+        return {};
+    }
+
+    /*
+     * All this does is return the edges to an "argumented" Vertex*
+     *
+     * @author Ethan Smith
+     * @version 11.23.2024
+     * @return const vector<Edge*>*
+     * @param Vertex*
+     */
+    const vector<Edge*>* getEdgesTo(Vertex* toVertex) const{
             return toEdges.at(toVertex);
         }
 
@@ -211,7 +267,7 @@ class Graph {
          * graph in a vector form
          * @author Emily Monroe
          */
-        vector<Vertex*> getVertices() const{//TODO: figure out why this isnt allowed
+        vector<Vertex*> getVertices() const{
             vector<Vertex*> vertices;
             for (auto &keyValue: fromEdges)
             {
